@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  title: Student Database Express API Documentation
+  version: 1.0.0
+
+tags:
+  - name: Students
+    description: students details management
+
+components:
+  schemas:
+    StudentInput:
+      type: object
+      properties:
+        name:
+          type: string
+          default: John Doe
+        age:
+          type: string
+          default: "18"
+        gender:
+          type: string
+          default: Male
+        email:
+          type: string
+          default: john@example.com
+        phone:
+          type: string
+          default: 1234567890
+    ApiResponse1:
+      type: object
+      properties:
+        message:
+          type: string
+          default: Data successfully added
+        addedStudent:
+          $ref: '#/components/schemas/Student'
+    ApiResponse2:
+      type: object
+      properties:
+        message:
+          type: string
+          default: Data successfully updated
+        updatedStudent:
+          $ref: '#/components/schemas/Student'
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          default: Deleted
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+          default: Internal Server Error
+        details:
+          type: string
+    ApiError2:
+      type: object
+      properties:
+        message:
+          type: string
+          default: ID not found
+    ApiError3:
+      type: object
+      properties:
+        error:
+          type: string
+          default: Missing required fields
+    ApiError4:
+      type: object
+      properties:
+        error:
+          type: string
+          default: No results found
+ 
+    Student:
+      type: object
+      properties:
+        _id:
+          type: string
+          default: "5fbc4f0e1c87817c15b3a58e"  # Sample ObjectId
+        name:
+          type: string
+          default: John Doe
+        age:
+          type: string
+          default: "18"
+        gender:
+          type: string
+          default: Male
+        email:
+          type: string
+          default: john@example.com
+        phone:
+          type: string
+          default: "1234567890"
+        studentId:
+          type: string
+          default: ST10001
+       
+
+paths:
+  /students/adddata:
+    post:
+      tags:
+        - Students
+      summary: Add new student data
+      description: Add a new student to the database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+      responses:
+        '200':
+          description: Data successfully added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse1'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError3'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /students/update/{id}:
+    put:
+      tags:
+        - Students
+      summary: Update student data
+      description: Update student data in the database
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Student ID to update
+          example: "ST10001"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentInput'
+      responses:
+        '200':
+          description: Data successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse2'
+        '404':
+          description: ID not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError2'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError3'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /students/view/{id}:
+    get:
+      tags:
+        - Students
+      summary: View specific student data
+      description: Retrieve information about a specific student by ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Student ID to view
+          example: "ST10001"
+      responses:
+        '200':
+          description: Student data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError2'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /students/delete/{id}:
+    delete:
+      tags:
+        - Students
+      summary: Delete student data
+      description: Delete a student from the database by ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Student ID to delete
+          example: "ST10001"
+      responses:
+        '200':
+          description: Student data deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError2'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /students/all:
+    get:
+      tags:
+        - Students
+      summary: Get all students with pagination and search
+      description: Retrieve a list of all students with optional pagination and search parameters
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of items per page for pagination
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for filtering students by name
+      responses:
+        '200':
+          description: List of students retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: No results found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError4'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
